@@ -37,7 +37,7 @@ El proyecto funciona en **macOS** y en **Linux**, tal cual, y en **Windows dentr
 
 El repositorio del proyecto es:
 
-**`https://github.com/LIDR-academy/flowsync-ai4devs`**
+**`https://github.com/LIDR-academy/flowsync-ai4devs-202609-1`**
 
 Trabaja sobre **tu propio fork**, no sobre un clon directo: durante el directo se abre un cambio propuesto, y sobre un clon del repositorio del curso no tienes permiso de escritura.
 
@@ -49,12 +49,12 @@ git remote -v
 
 # Si clonaste el del curso por error, renombra y añade el tuyo:
 git remote rename origin upstream
-git remote add origin git@github.com:<tu-usuario>/flowsync-ai4devs.git
+git remote add origin git@github.com:<tu-usuario>/flowsync-ai4devs-202609-1.git
 
 # Y si empiezas de cero: haz el fork en GitHub y clónalo
-git clone git@github.com:<tu-usuario>/flowsync-ai4devs.git
-cd flowsync-ai4devs
-git remote add upstream git@github.com:LIDR-academy/flowsync-ai4devs.git
+git clone git@github.com:<tu-usuario>/flowsync-ai4devs-202609-1.git
+cd flowsync-ai4devs-202609-1
+git remote add upstream git@github.com:LIDR-academy/flowsync-ai4devs-202609-1.git
 
 # En todos los casos, la rama de partida:
 git fetch upstream
