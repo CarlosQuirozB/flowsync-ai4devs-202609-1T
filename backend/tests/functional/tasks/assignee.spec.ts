@@ -67,12 +67,14 @@ test.group('Tasks | responsable', (group) => {
     })
     const task = await tareaDe(ada)
 
-    for (const tarea of [
-      await suelta(client, token, task),
-      await enLaLista(client, token, task, assert),
+    for (const [camino, tarea] of [
+      ['suelta', await suelta(client, token, task)],
+      ['en la lista', await enLaLista(client, token, task, assert)],
     ]) {
-      assert.equal(tarea.assignee.fullName, 'Ada Lovelace')
-      assert.equal(tarea.assignee.initials, 'AL')
+      assert.isObject(tarea.assignee, `la tarea ${camino} llega sin responsable`)
+      assert.equal(tarea.assignee.id, ada.id, `la tarea ${camino} trae otro responsable`)
+      assert.equal(tarea.assignee.fullName, 'Ada Lovelace', `nombre de la tarea ${camino}`)
+      assert.equal(tarea.assignee.initials, 'AL', `iniciales de la tarea ${camino}`)
     }
   })
 
@@ -89,6 +91,7 @@ test.group('Tasks | responsable', (group) => {
       ['suelta', await suelta(client, token, task)],
       ['en la lista', await enLaLista(client, token, task, assert)],
     ]) {
+      assert.isObject(tarea.assignee, `la tarea ${camino} llega sin responsable`)
       assert.notProperty(tarea.assignee, 'email', `la tarea ${camino} expone el email`)
       assert.notProperty(tarea.assignee, 'password', `la tarea ${camino} expone la contraseña`)
       assert.sameMembers(
@@ -115,8 +118,9 @@ test.group('Tasks | responsable', (group) => {
       ['suelta', await suelta(client, token, task)],
       ['en la lista', await enLaLista(client, token, task, assert)],
     ]) {
-      assert.isNull(tarea.assignee.fullName)
-      assert.equal(tarea.assignee.initials, 'AE')
+      assert.isObject(tarea.assignee, `la tarea ${camino} llega sin responsable`)
+      assert.isNull(tarea.assignee.fullName, `nombre de la tarea ${camino}`)
+      assert.equal(tarea.assignee.initials, 'AE', `iniciales de la tarea ${camino}`)
       // Las iniciales salen del email, pero el email en sí no puede viajar con
       // ellas: es justo lo que el scenario quiere evitar.
       assert.notProperty(tarea.assignee, 'email', `la tarea ${camino} expone el email`)
