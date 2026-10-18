@@ -8,6 +8,23 @@ import {
 import type { HttpContext } from '@adonisjs/core/http'
 import TaskTransformer from '#transformers/task_transformer'
 import TaskDetailTransformer from '#transformers/task_detail_transformer'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+} from '@foadonis/openapi/decorators'
+import { TASK_STATUSES } from '#models/task'
+import {
+  CreateTaskBody,
+  TaskDetailResponse,
+  TaskListResponse,
+  TaskResponse,
+  invalid,
+  notFound,
+  unauthorized,
+} from '#openapi/schemas'
 
 export default class TasksController {
   /**
@@ -25,6 +42,22 @@ export default class TasksController {
    *
    * Acotar es solo lectura: ninguna tarea cambia por consultarla.
    */
+  @ApiOperation({ summary: 'Lista de tareas del espacio, de la más reciente a la más antigua' })
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: [...TASK_STATUSES],
+    description:
+      'Acota la lista a un solo estado. Sin él, la lista trae las pendientes y las en curso, no las hechas.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'La lista entera, sin paginar; vacía si nada coincide.',
+    type: TaskListResponse,
+  })
+  @unauthorized
+  @invalid
   async index({ request, serialize }: HttpContext) {
     const { status } = await request.validateUsing(listTasksValidator)
 
@@ -51,6 +84,18 @@ export default class TasksController {
    * Una tarea suelta, con todo lo que tiene: es la única lectura que informa
    * del vencimiento, y por eso es la única que exige el día de quien mira.
    */
+  @ApiOperation({ summary: 'Una tarea, con su vencimiento resuelto contra el día de quien mira' })
+  @ApiBearerAuth()
+  @ApiQuery({
+    name: 'today',
+    required: true,
+    schema: { type: 'string', format: 'date' },
+    description: 'Día de referencia de quien mira, `AAAA-MM-DD`. Sin él, 422.',
+  })
+  @ApiResponse({ status: 200, description: 'La tarea.', type: TaskDetailResponse })
+  @unauthorized
+  @notFound
+  @invalid
   async show({ params, request, serialize }: HttpContext) {
     const { today } = await request.validateUsing(taskReferenceDayValidator)
     const task = await Task.findOrFail(params.id)
@@ -63,6 +108,12 @@ export default class TasksController {
    * Crear cuesta un título. El responsable y el estado no se leen de la
    * petición ni aunque vengan: los pone el sistema.
    */
+  @ApiOperation({ summary: 'Crea una tarea a nombre de quien la envía, en estado pending' })
+  @ApiBearerAuth()
+  @ApiBody({ type: CreateTaskBody })
+  @ApiResponse({ status: 201, description: 'La tarea creada.', type: TaskResponse })
+  @unauthorized
+  @invalid
   async store({ request, response, auth, serialize }: HttpContext) {
     const { title } = await request.validateUsing(createTaskValidator)
     const user = auth.getUserOrFail()
