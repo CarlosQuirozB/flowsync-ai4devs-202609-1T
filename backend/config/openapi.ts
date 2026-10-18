@@ -7,5 +7,10 @@ export default defineConfig({
       title: 'FlowSync API',
       version: '0.0.0',
     },
+    components: {
+      securitySchemes: {
+        bearer: { type: 'http', scheme: 'bearer' },
+      },
+    },
   },
 })
