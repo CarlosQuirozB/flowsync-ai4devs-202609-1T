@@ -57,6 +57,7 @@ export default class TasksController {
     type: TaskListResponse,
   })
   @unauthorized
+  @invalid
   async index({ request, serialize }: HttpContext) {
     const { status } = await request.validateUsing(listTasksValidator)
 
