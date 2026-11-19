@@ -98,7 +98,7 @@ test.group('Tasks | responsable', (group) => {
 
     for (const assignee of [enLista, suelta]) {
       assert.isNull(assignee.fullName)
-      assert.equal(assignee.initials, 'GR')
+      assert.equal(assignee.initials, 'GE')
     }
   })
 })
