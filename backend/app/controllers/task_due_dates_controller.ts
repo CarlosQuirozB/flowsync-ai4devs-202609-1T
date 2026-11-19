@@ -2,7 +2,16 @@ import Task from '#models/task'
 import { setTaskDueDateValidator, toCalendarDay } from '#validators/task'
 import type { HttpContext } from '@adonisjs/core/http'
 import TaskDetailTransformer from '#transformers/task_detail_transformer'
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse } from '@foadonis/openapi/decorators'
+import {
+  ErrorResponse,
+  NotFoundResponse,
+  SetTaskDueDateBody,
+  TaskDetailResponse,
+  ValidationErrorResponse,
+} from '#openapi/schemas'
 
+@ApiBearerAuth()
 export default class TaskDueDatesController {
   /**
    * Fijar, cambiar y retirar la fecha de vencimiento son la misma operación, y
@@ -16,6 +25,33 @@ export default class TaskDueDatesController {
    * Cualquiera con sesión puede cambiar la fecha de cualquier tarea, igual que
    * el estado. No se comprueba quién es el responsable.
    */
+  @ApiOperation({
+    summary: 'Fijar, cambiar o retirar la fecha de vencimiento',
+    description:
+      'Cualquier cuenta con sesión, sobre cualquier tarea. Una fecha pasada se acepta sin aviso. No toca ni el título, ni el responsable, ni el estado.',
+  })
+  @ApiBody({ type: () => SetTaskDueDateBody })
+  @ApiResponse({
+    status: 200,
+    description: 'La tarea ya actualizada, con `isOverdue` resuelto contra el `today` enviado.',
+    type: () => TaskDetailResponse,
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Falta el token o no es válido. Nada cambia.',
+    type: () => ErrorResponse,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'No existe ninguna tarea con ese identificador. Se comprueba antes que el cuerpo.',
+    type: () => NotFoundResponse,
+  })
+  @ApiResponse({
+    status: 422,
+    description:
+      '`dueDate` imposible o mal formada, o `today` ausente o inválido. La fecha anterior queda intacta.',
+    type: () => ValidationErrorResponse,
+  })
   async update({ params, request, serialize }: HttpContext) {
     const task = await Task.findOrFail(params.id)
     const { today, dueDate } = await request.validateUsing(setTaskDueDateValidator)
