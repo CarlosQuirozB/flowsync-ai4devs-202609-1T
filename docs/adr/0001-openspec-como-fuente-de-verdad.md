@@ -43,6 +43,8 @@ En concreto:
 
 ## Estado
 
+Reemplazada por el [ADR 0002: Los tests de integración como fuente de verdad ejecutable](0002-tests-como-fuente-de-verdad-ejecutable.md).
+
 Aceptada.
 
 La práctica está en uso desde el 2026-08-13, fecha de los tres changes archivados. Este ADR la registra a posteriori el 2026-11-19.
