@@ -9,5 +9,17 @@ export default defineConfig({
       // de `start/routes.ts`, la única versión de la API que existe hoy.
       version: '1.0.0',
     },
+    components: {
+      securitySchemes: {
+        // El nombre `bearer` lo fija `@ApiBearerAuth()`: es la clave que esa
+        // anotación referencia desde cada operación protegida.
+        bearer: {
+          type: 'http',
+          scheme: 'bearer',
+          description:
+            'Access token opaco de `POST /api/v1/auth/login`, en `Authorization: Bearer <token>`.',
+        },
+      },
+    },
   },
 })
