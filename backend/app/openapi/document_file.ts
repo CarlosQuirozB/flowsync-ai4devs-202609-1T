@@ -55,8 +55,10 @@ export function diffDocuments(expected: unknown, actual: unknown, path = ''): Do
     const keys = new Set([...Object.keys(expected), ...Object.keys(actual)])
     return [...keys].flatMap((key) => {
       const childPath = joinPath(path, key)
-      if (!(key in actual)) return [{ kind: 'removed', path: childPath, value: expected[key] }]
-      if (!(key in expected)) return [{ kind: 'added', path: childPath, value: actual[key] }]
+      if (!Object.hasOwn(actual, key))
+        return [{ kind: 'removed', path: childPath, value: expected[key] }]
+      if (!Object.hasOwn(expected, key))
+        return [{ kind: 'added', path: childPath, value: actual[key] }]
       return diffDocuments(expected[key], actual[key], childPath)
     })
   }

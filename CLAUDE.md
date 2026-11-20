@@ -28,7 +28,7 @@ npm run openapi:generate                        # escribe el documento OpenAPI e
 npm run openapi:check                           # regenera en un temporal y compara con el versionado (exit 1 si difieren)
 ```
 
-Tests (Japa). Dos suites declaradas en `adonisrc.ts`: `unit` (`tests/unit/**/*.spec.ts`, timeout 2s) y `functional` (`tests/functional/**/*.spec.ts`, timeout 30s). Hoy solo hay tests **functional de `auth`** (`tests/functional/auth/`): registro, login, sesión e iniciales. **`tests/unit/` no existe**, y la capability `tasks` no tiene ni un test.
+Tests (Japa). Dos suites declaradas en `adonisrc.ts`: `unit` (`tests/unit/**/*.spec.ts`, timeout 2s) y `functional` (`tests/functional/**/*.spec.ts`, timeout 30s). Hoy solo hay tests **functional de `auth`** (`tests/functional/auth/`): registro, login, sesión e iniciales. En `tests/unit/` solo está el diff estructural del documento OpenAPI (`tests/unit/openapi/`), y la capability `tasks` no tiene ni un test.
 
 ```bash
 node ace test unit                    # una suite
