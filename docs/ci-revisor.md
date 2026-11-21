@@ -9,6 +9,10 @@ resumen final. No edita ficheros ni hace commits. Solo puede usar `Read`, `Grep`
 herramienta de comentarios en línea y `gh pr diff|view|comment`. Además, `--permission-mode default`
 hace que esa lista sea estricta: lo que no está en ella se deniega.
 
+Qué cuenta como grave, el tope de sugerencias, dónde no reportar y la evidencia que exige cada
+hallazgo están en [`REVIEW.md`](../REVIEW.md), en la raíz. El prompt le pide a Claude que lo lea
+antes que nada.
+
 ## Pasos manuales pendientes
 
 Hasta que no se hagan, el workflow existe pero no revisa nada.
@@ -17,16 +21,12 @@ Hasta que no se hagan, el workflow existe pero no revisa nada.
    variables → Actions → New repository secret*. Hay dos caminos, explicados
    [más abajo](#credencial-dos-caminos-que-no-son-intercambiables). Sin secreto, la acción falla en
    la primera llamada al modelo.
-2. **Crear el archivo de calibración `.github/review-calibration.md`.** Define qué cuenta como grave
-   y cuántas sugerencias menores caben. El prompt le pide a Claude que lo lea antes que nada. Mientras
-   no exista, Claude usa una regla por defecto: solo defectos demostrables y como mucho tres
-   sugerencias menores.
-3. **Comprobar los permisos de Actions del repositorio.** En *Settings → Actions → General*, Actions
+2. **Comprobar los permisos de Actions del repositorio.** En *Settings → Actions → General*, Actions
    tiene que estar habilitado. El workflow declara sus permisos (`contents: read`,
    `pull-requests: write`), así que el ajuste por defecto del `GITHUB_TOKEN` no hace falta cambiarlo.
    Si una política de la organización limita el token a solo lectura, los comentarios fallan con
    `403`.
-4. **Ver una primera ejecución de verdad.** En el PR que introduce este workflow, la primera revisión
+3. **Ver una primera ejecución de verdad.** En el PR que introduce este workflow, la primera revisión
    corre ya con el fichero de la propia rama. Si el secreto aún no existe, esa ejecución sale en rojo.
    Después de crearlo, relanza el job desde la pestaña *Actions* o empuja un commit.
 

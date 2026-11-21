@@ -48,11 +48,9 @@ jobs:
 
             Revisa este pull request. La rama del PR ya está en el directorio de trabajo.
 
-            1. Si existe `.github/review-calibration.md`, léelo antes que nada con la
-               herramienta Read: define qué cuenta como grave y cuántas sugerencias
-               menores caben. Si no existe, informa solo de defectos que puedas
-               demostrar (bugs, fallos de seguridad, incumplimientos de CLAUDE.md o de
-               `openspec/specs/`) y como mucho tres sugerencias menores.
+            1. Lee `REVIEW.md`, en la raíz del repositorio, antes que nada con la
+               herramienta Read, y cúmplelo: define qué cuenta como grave, el tope de
+               sugerencias, dónde no reportar y qué evidencia exige cada afirmación.
             2. Obtén el diff con `gh pr diff ${{ github.event.pull_request.number }}` y
                abre los ficheros que necesites con Read, Grep y Glob.
             3. No redirijas salida a ficheros (nada de `>`, `>>`, `tee` ni ficheros
