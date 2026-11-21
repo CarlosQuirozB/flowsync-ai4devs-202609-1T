@@ -10,7 +10,9 @@ Solo para revisiones de código. Lo demás está en `CLAUDE.md`.
 - Una entrada que la spec manda rechazar con 422 se acepta. Ejemplo: un `vine.string()` donde va un `vine.enum`.
 - Un comentario, un JSDoc, el README de la capability o el OpenAPI afirman algo que el código no hace.
 - Un test que pasa sin comprobar lo que dice su título.
-- Se edita a mano un fichero generado, o se hace un commit directo en `main` o en una `sN/*`.
+- Se edita a mano un fichero generado.
+- Un error de tipos o de lint que puedas citar. **Ningún job de CI corre `tsc` ni el lint**, así que
+  si no lo marcas tú, nadie lo marca.
 
 Nada más es grave. Nombres, refactors, legibilidad, rendimiento sin un caso medido y tests que faltan
 para código que el PR no toca son **sugerencias**.
@@ -22,11 +24,9 @@ final como una sola línea contada: «N sugerencias más: 2 de nombres, 1 de dup
 
 ## Dónde no reportar
 
-- Lo que ya vigila otra comprobación:
-  - que `docs/api/openapi.json` coincida con las rutas: el job `openapi-check`;
-  - el formato: Prettier;
-  - el lint: eslint en `backend/`, oxlint en `frontend/`;
-  - los tipos: `tsc`.
+- Lo que ya vigila otra comprobación: que `docs/api/openapi.json` coincida con las rutas lo vigila el
+  job `openapi-check`. Es la única que corre en CI.
+- El formato puro (espacios, comillas, saltos de línea): es estilo y se arregla con Prettier.
 - Ficheros generados: `backend/database/schema.ts`, `backend/.adonisjs/`, `docs/api/openapi.json`,
   `frontend/src/components/ui/` (shadcn) y los `package-lock.json`. Sí es grave que se editen a mano.
 - Código que el diff no toca, salvo que el cambio lo rompa.

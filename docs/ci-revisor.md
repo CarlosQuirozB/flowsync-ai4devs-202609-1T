@@ -3,7 +3,9 @@
 El workflow [`.github/workflows/claude-review.yml`](../.github/workflows/claude-review.yml) lanza
 Claude Code con la acción oficial
 [`anthropics/claude-code-action`](https://github.com/anthropics/claude-code-action) en cada pull
-request que se abre, se actualiza, se reabre o sale de borrador. Claude lee el diff y los ficheros
+request que se abre, se actualiza, se reabre o sale de borrador. Los borradores no se revisan
+mientras lo son, y los PR de Dependabot tampoco (GitHub les da su propio almacén de secretos, no el
+de Actions). Claude lee el diff y los ficheros
 que necesite, y publica los hallazgos **como comentarios en el PR**: uno en línea por hallazgo y un
 resumen final. No edita ficheros ni hace commits. Solo puede usar `Read`, `Grep`, `Glob`, la
 herramienta de comentarios en línea y `gh pr diff|view|comment`. Además, `--permission-mode default`
@@ -19,8 +21,9 @@ Hasta que no se hagan, el workflow existe pero no revisa nada.
 
 1. **Guardar la credencial como secreto del repositorio.** Se hace en *Settings → Secrets and
    variables → Actions → New repository secret*. Hay dos caminos, explicados
-   [más abajo](#credencial-dos-caminos-que-no-son-intercambiables). Sin secreto, la acción falla en
-   la primera llamada al modelo.
+   [más abajo](#credencial-dos-caminos-que-no-son-intercambiables). Sin secreto, la acción falla antes
+   de llamar al modelo, al validar el entorno: `Either ANTHROPIC_API_KEY, CLAUDE_CODE_OAUTH_TOKEN, or
+   workload identity federation ... is required`. Visto en la primera ejecución del PR #2.
 2. **Comprobar los permisos de Actions del repositorio.** En *Settings → Actions → General*, Actions
    tiene que estar habilitado. El workflow declara sus permisos (`contents: read`,
    `pull-requests: write`), así que el ajuste por defecto del `GITHUB_TOKEN` no hace falta cambiarlo.
