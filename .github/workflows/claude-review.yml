@@ -1,0 +1,73 @@
+name: Claude review
+
+# Revisor automático: Claude Code lee el diff de cada PR y publica sus hallazgos
+# como comentarios en el PR (en línea sobre el código y uno general). Pasos
+# manuales pendientes, coste y credenciales: docs/ci-revisor.md.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Sin permisos por defecto para ningún job del workflow.
+permissions: {}
+
+# Un push nuevo al mismo PR cancela la revisión anterior: no se paga dos veces.
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    # Los PR desde un fork no reciben secretos (ver docs/ci-revisor.md): el job
+    # se salta en vez de fallar en la primera llamada sin credencial.
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # clonar el repo y leer el código
+      pull-requests: write # publicar los comentarios en el PR
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: anthropics/claude-code-action@acfe7992852970efb4fee683d63d628e3e52df67 # v1.0.286
+        with:
+          # Credencial: token de suscripción generado con `claude setup-token`.
+          # Para usar en su lugar una clave de API de la consola, cambia esta
+          # línea por `anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}`.
+          # No son intercambiables: ver docs/ci-revisor.md.
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # El GITHUB_TOKEN del job, limitado a los permisos de arriba. Evita
+          # instalar la GitHub App de Claude y pedir `id-token: write`.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          allow_fork_prs: "false"
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            Revisa este pull request. La rama del PR ya está en el directorio de trabajo.
+
+            1. Si existe `.github/review-calibration.md`, léelo antes que nada con la
+               herramienta Read: define qué cuenta como grave y cuántas sugerencias
+               menores caben. Si no existe, informa solo de defectos que puedas
+               demostrar (bugs, fallos de seguridad, incumplimientos de CLAUDE.md o de
+               `openspec/specs/`) y como mucho tres sugerencias menores.
+            2. Obtén el diff con `gh pr diff ${{ github.event.pull_request.number }}` y
+               abre los ficheros que necesites con Read, Grep y Glob.
+            3. No redirijas salida a ficheros (nada de `>`, `>>`, `tee` ni ficheros
+               temporales): lee directamente la salida de cada comando.
+            4. Publica cada hallazgo como comentario en línea con
+               `mcp__github_inline_comment__create_inline_comment` (con `confirmed: true`),
+               anclado al fichero y la línea del diff, con severidad y escenario de fallo.
+            5. Cierra con un único `gh pr comment` que resuma los hallazgos, o diga que no
+               hay ninguno. Escribe los comentarios en castellano.
+
+            Publica solo comentarios en GitHub: no dejes la revisión únicamente como
+            texto de la ejecución. No modifiques ficheros ni hagas commits.
+          claude_args: |
+            --model sonnet
+            --effort medium
+            --max-turns 40
+            --permission-mode default
+            --allowedTools "Read,Grep,Glob,mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*)"
