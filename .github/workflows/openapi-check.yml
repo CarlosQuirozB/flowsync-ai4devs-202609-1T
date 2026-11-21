@@ -1,0 +1,51 @@
+name: OpenAPI check
+
+# Falla si docs/api/openapi.json no coincide con lo que generan las rutas del
+# backend. Solo compara: nunca escribe ni commitea el documento.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Sin permisos por defecto para ningún job del workflow.
+permissions: {}
+
+concurrency:
+  group: openapi-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  openapi-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read # lo único que hace falta: clonar el repo
+    defaults:
+      run:
+        working-directory: backend
+    # `openapi:check` arranca la app, y start/env.ts valida estas variables al
+    # bootear. No hace falta .env: el APP_KEY es un valor de relleno, no un
+    # secreto, porque el check no cifra ni firma nada.
+    env:
+      TZ: UTC
+      NODE_ENV: test
+      PORT: 3333
+      HOST: localhost
+      LOG_LEVEL: info
+      APP_KEY: ci-only-placeholder-not-a-secret
+      APP_URL: http://localhost:3333
+      SESSION_DRIVER: memory
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - run: npm ci --no-audit --no-fund
+
+      - run: npm run openapi:check
